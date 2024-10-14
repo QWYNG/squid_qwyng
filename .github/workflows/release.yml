@@ -69,6 +69,7 @@ jobs:
 
     - name: 'Deploy container'
       run: |-
-        gcloud compute instances update-container $GCP_PROJECT_ID \
+        gcloud compute instances update-container proxy-server \
+          --project $GCP_PROJECT_ID \
           --zone=us-west1-a \
           --container-image "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid-qwyng/squid_qwyng:${{ github.sha }}"
