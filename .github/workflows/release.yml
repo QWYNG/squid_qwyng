@@ -35,6 +35,9 @@ jobs:
       with:
         project_id: ${{ env.GCP_PROJECT_ID }}
 
+    - name: Configure docker to use the gcloud cli
+      run: gcloud auth configure-docker us-west1-docker.pkg.dev  
+
     - name: 'Build and push container'
       run: |-
         docker build -t "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid-qwyng/squid_qwyng:${{ github.sha }}" \
