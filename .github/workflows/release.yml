@@ -18,7 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GCP_PROJECT_ID: "qwyng-proxy"
-
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+  
     steps:
     - uses: 'actions/checkout@v4'
 
