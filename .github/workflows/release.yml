@@ -1,0 +1,69 @@
+name: Build and Deploy to GCP
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Choose action: build or build and deploy'
+        required: true
+        default: 'build'
+        type: choice
+        options:
+          - build
+          - build-and-deploy
+
+jobs:
+  build:
+    if: ${{ github.event.inputs.action == 'build' || github.event.inputs.action == 'build-and-deploy' }}
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT_ID: "qwyng-proxy"
+
+    steps:
+    - uses: 'actions/checkout@v4'
+
+    - uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: "projects/676354990788/locations/global/workloadIdentityPools/github"
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        project_id: ${{ env.GCP_PROJECT_ID }}
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+        project_id: ${{ env.GCP_PROJECT_ID }}
+
+    - name: 'Build and push container'
+      run: |-
+        docker build -t "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid_qwyng/squid_qwyng:${{ github.sha }}" \
+         --secret id=proxy-basic-auth-user,env=PROXY_BASIC_AUTH_USER \
+         --secret id=proxy-basic-auth-password,env=PROXY_BASIC_AUTH_PASSWORD .
+        docker push "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid_qwyng/squid_qwyng:${{ github.sha }}"
+      env:
+        PROXY_BASIC_AUTH_USER: ${{ secrets.PROXY_BASIC_AUTH_USER }}
+        PROXY_BASIC_AUTH_PASSWORD: ${{ secrets.PROXY_BASIC_AUTH_PASSWORD }}
+
+  deploy:
+    if: ${{ github.event.inputs.action == 'build-and-deploy' }}
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      GCP_PROJECT_ID: "qwyng-proxy"
+
+    steps:
+    - uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: "projects/676354990788/locations/global/workloadIdentityPools/github"
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        project_id: ${{ env.GCP_PROJECT_ID }}
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+        project_id: ${{ env.GCP_PROJECT_ID }}
+
+    - name: 'Deploy container'
+      run: |-
+        gcloud compute instances update-container $GCP_PROJECT_ID \
+          --zone=us-west1-a \
+          --container-image "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid_qwyng/squid_qwyng:${{ github.sha }}"
