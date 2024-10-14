@@ -37,10 +37,10 @@ jobs:
 
     - name: 'Build and push container'
       run: |-
-        docker build -t "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid_qwyng/squid_qwyng:${{ github.sha }}" \
+        docker build -t "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid-qwyng/squid_qwyng:${{ github.sha }}" \
          --secret id=proxy-basic-auth-user,env=PROXY_BASIC_AUTH_USER \
          --secret id=proxy-basic-auth-password,env=PROXY_BASIC_AUTH_PASSWORD .
-        docker push "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid_qwyng/squid_qwyng:${{ github.sha }}"
+        docker push "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid-qwyng/squid_qwyng:${{ github.sha }}"
       env:
         PROXY_BASIC_AUTH_USER: ${{ secrets.PROXY_BASIC_AUTH_USER }}
         PROXY_BASIC_AUTH_PASSWORD: ${{ secrets.PROXY_BASIC_AUTH_PASSWORD }}
@@ -68,4 +68,4 @@ jobs:
       run: |-
         gcloud compute instances update-container $GCP_PROJECT_ID \
           --zone=us-west1-a \
-          --container-image "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid_qwyng/squid_qwyng:${{ github.sha }}"
+          --container-image "us-west1-docker.pkg.dev/$GCP_PROJECT_ID/squid-qwyng/squid_qwyng:${{ github.sha }}"
