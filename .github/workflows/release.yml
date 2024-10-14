@@ -54,6 +54,9 @@ jobs:
     needs: build
     env:
       GCP_PROJECT_ID: "qwyng-proxy"
+    permissions:
+      contents: 'read'
+      id-token: 'write'  
 
     steps:
     - uses: 'google-github-actions/auth@v2'
