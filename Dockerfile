@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax = docker/dockerfile:1.2
 
 FROM ubuntu/squid:latest
 
