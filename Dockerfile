@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.2
+# syntax=docker/dockerfile:1
 FROM ubuntu/squid:latest
 
 RUN --mount=type=secret,id=proxy-basic-auth-user,env=PROXY_BASIC_AUTH_USER \
